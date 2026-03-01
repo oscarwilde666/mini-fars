@@ -1,3 +1,3 @@
-from .orchestrator import WorkflowOrchestrator
+from .agent import FARSLikeAgent
 
-__all__ = ["WorkflowOrchestrator"]
+__all__ = ["FARSLikeAgent"]

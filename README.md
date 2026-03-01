@@ -1,43 +1,42 @@
-# New Project: FARS-like 自动化研究系统（多智能体）
+# Mini FARS-like Agent Starter
 
-> 这是**新项目入口**。旧的单回合 demo agent 不再作为主流程维护。
+这是一个**可运行的最小骨架**，用于构建一个类似 FARS（Fact/Action/Reasoning/State 风格）的 agent 系统。
 
-## 你需要先知道的 5 件事
+## 目标
 
-1. **项目目标**：自动完成研究流程（创意 → 规划 → 实验 → 写作）。
-2. **执行方式**：通过一个工作流编排器串联 4 个专业 agent。
-3. **状态管理**：使用状态机控制生命周期，支持失败态。
-4. **数据落盘**：每个项目在 workspace 下持久化阶段产物。
-5. **当前边界**：实验执行仍为模拟，后续替换为真实任务系统（Celery/Ray/K8s）。
+- 把“问题求解”拆成可观测的步骤：
+  1. **Plan**（规划）
+  2. **Act**（调用工具）
+  3. **Ground**（把结论绑定到证据）
+  4. **Respond**（输出可追溯答案）
+- 让系统天然支持：
+  - 工具调用
+  - 记忆检索
+  - 证据引用
+  - 可插拔 LLM
 
-## 快速运行
+## 快速开始
 
 ```bash
-python -m fars_like_agent.cli "自动化研究系统中的证据约束" --project-id project_001 --workspace workspace
+python -m fars_like_agent.cli "比较上海和北京今天的天气并给出建议"
 ```
 
-## 运行产物
+> 默认使用启发式 planner（无外部 API），用于演示流程。你可以替换 `LLMClient` 接入任意模型。
 
-执行后将在 `workspace/projects/<project_id>/` 生成：
+## 架构
 
-- `hypothesis.json`
-- `plan.json`
-- `experiments/results/results.json`
-- `paper/draft.md`
-- `metadata.json`
+- `fars_like_agent/agent.py`：主执行循环（plan → act → ground → respond）
+- `fars_like_agent/planner.py`：任务分解与动作计划
+- `fars_like_agent/tools.py`：工具注册表（示例：calculator、echo）
+- `fars_like_agent/memory.py`：简单 memory + 检索
+- `fars_like_agent/models.py`：统一数据结构
+- `fars_like_agent/llm.py`：可替换 LLM 接口
 
-## 核心目录
+## 下一步建议（向生产演进）
 
-- `fars_like_agent/agents/`：四类专业 agent
-- `fars_like_agent/orchestrator/`：状态机与工作流编排
-- `fars_like_agent/filesystem/`：项目文件系统管理
-- `tests/test_workflow.py`：端到端骨架测试
+1. 增加真实检索工具（搜索/API/RAG）并记录证据 URL。
+2. 增加“自检器”（consistency/faithfulness checker）。
+3. 为每步状态落库（Postgres + object storage）。
+4. 增加异步任务编排（Celery / Temporal / Arq）。
+5. 引入评测集和离线回放（regression harness）。
 
-## 下一步（建议优先级）
-
-1. Ideation 接入 arXiv/Semantic Scholar。
-2. Experiment 接入异步任务队列 + GPU 调度。
-3. Writing 增加引用管理与格式化输出（Markdown/LaTeX）。
-4. 增加阶段审查器（LLM-as-a-Judge）。
-
-更多上手信息见 `NEW_PROJECT_GUIDE.md`。

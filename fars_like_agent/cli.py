@@ -2,28 +2,30 @@ from __future__ import annotations
 
 import argparse
 import json
-from pathlib import Path
 
-from .orchestrator import WorkflowOrchestrator
+from .agent import FARSLikeAgent
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Run the new FARS-like 4-agent automated research workflow"
-    )
-    parser.add_argument("research_direction", help="Research topic/direction")
-    parser.add_argument("--project-id", default="project_001", help="Project identifier")
-    parser.add_argument("--workspace", default="workspace", help="Workspace root directory")
+    parser = argparse.ArgumentParser(description="Run a minimal FARS-like agent")
+    parser.add_argument("goal", help="Task or question for the agent")
     args = parser.parse_args()
 
-    orchestrator = WorkflowOrchestrator(workspace_root=Path(args.workspace))
-    result = orchestrator.run_project(
-        project_id=args.project_id,
-        research_direction=args.research_direction,
+    agent = FARSLikeAgent()
+    result = agent.run(args.goal)
+    print(
+        json.dumps(
+            {
+                "answer": result.answer,
+                "evidence": [e.__dict__ for e in result.evidence],
+                "trace": result.trace,
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
     )
-
-    print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
     main()
+
